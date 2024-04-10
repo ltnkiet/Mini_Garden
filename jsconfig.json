@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "strictBindCallApply": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  }
+}
