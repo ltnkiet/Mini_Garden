@@ -1,4 +1,4 @@
-const tokenName = "minigarden/token";
+const tokenName = "accessToken";
 
 const token = {
   get token() {

@@ -1,6 +1,7 @@
 const createError = require("http-errors");
 const { Op } = require("sequelize");
 const client = require("../helpers/init_redis");
+const ApiError = require("../api-error");
 
 const models = require("../models");
 const { registerSchema, loginSchema } = require("../helpers/validation_schema");
@@ -48,10 +49,22 @@ const login = async (req, res, next) => {
     const result = await loginSchema.validateAsync(req.body);
 
     const user = await models.User.findOne({ where: { email: result.email } });
-    if (!user) throw createError.NotFound("User not registered");
+    if (!user)
+      return next(
+        new ApiError({
+          statusCode: 401,
+          message: "User not registered",
+        })
+      );
 
     const isMatch = await user.isValidPassword(result.password);
-    if (!isMatch) throw createError.Unauthorized("Invalid Email/Password");
+    if (!isMatch)
+      return next(
+        new ApiError({
+          statusCode: 401,
+          message: "Invalid Email/Password",
+        })
+      );
 
     const accessToken = signAccessToken(
       user.id,
@@ -63,9 +76,18 @@ const login = async (req, res, next) => {
     );
     const refreshToken = signRefreshToken(user.id);
 
-    res.send({ accessToken, refreshToken, msg: "Login Successfully" });
+    res.send({ accessToken, refreshToken, message: "Login Successfully" });
   } catch (error) {
     if (error.isJoi) next(createError.BadRequest("Invalid Email/Password"));
+    next(error);
+  }
+};
+
+const auth = async (req, res, next) => {
+  try {
+    const user = 
+    res.send(req.user);
+  } catch (error) {
     next(error);
   }
 };
@@ -110,6 +132,7 @@ const logout = async (req, res, next) => {
 
 module.exports = {
   register,
+  auth,
   login,
   refreshToken,
   logout,

@@ -2,9 +2,14 @@ const express = require("express");
 const logger = require("morgan");
 const createError = require("http-errors");
 require("dotenv").config();
+const cors = require("cors");
 
 const { verifyAccessToken } = require("./helpers/jwt_helper");
-const { getUser, authUserDevice, authDeviceSensor } = require("./helpers/user_helper");
+const {
+  getUser,
+  authUserDevice,
+  authDeviceSensor,
+} = require("./helpers/user_helper");
 const TestRoute = require("./routes/Test.route");
 const AuthRoute = require("./routes/Auth.route");
 const DeviceRoute = require("./routes/Device.route");
@@ -14,6 +19,14 @@ const ControlUnitRoute = require("./routes/ControlUnit.route");
 const SensorReadingRoute = require("./routes/SensorReading.route");
 
 const app = express();
+
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+    methods: ["POST", "GET", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
 
 // Middlewares
 app.use(logger("dev"));
@@ -50,13 +63,9 @@ app.use((req, res, next) => {
   next(createError.NotFound());
 });
 
-app.use((err, req, res, next) => {
-  res.status(err.status || 500).send({
-    error: {
-      status: err.status || 500,
-      message: err.message,
-    },
-  });
+app.use((error, req, res, next) => {
+	res.status(error.statusCode).send({ message: error.message });
+	next();
 });
 
 const port = process.env.PORT || 3000;

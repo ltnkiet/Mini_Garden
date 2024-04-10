@@ -1,6 +1,10 @@
 import request from "@/utils/request";
 
 class AuthService {
+
+  static auth(accessToken) {
+    return request.get("user", accessToken);
+  }
   static register(payload) {
     return request.post("auth/register", payload);
   }

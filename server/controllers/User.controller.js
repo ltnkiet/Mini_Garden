@@ -32,7 +32,7 @@ const authModifyUser = async (req, res, next) => {
 };
 
 const selfReference = async (req, res, next) => {
-  res.json(req.user);
+  res.send(req.user);
 };
 
 const getAllUser = async (req, res, next) => {

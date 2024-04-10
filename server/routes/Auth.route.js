@@ -4,6 +4,8 @@ const AuthController = require("../controllers/Auth.controller");
 const { comingSoon } = require("../helpers/coming_soon");
 const router = express.Router();
 
+router.get("/", AuthController.auth);
+
 router.post("/register", AuthController.register);
 
 router.post("/login", AuthController.login);

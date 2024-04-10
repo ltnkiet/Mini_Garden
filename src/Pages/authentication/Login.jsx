@@ -3,25 +3,31 @@ import { NavLink } from "react-router-dom";
 import AuthService from "@/services/auth.service";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import token from '@/utils/token'
-import { useDispatch } from 'react-redux';
+import token from "@/utils/token";
+import { useDispatch } from "react-redux";
+import { toast } from "react-toastify";
+import { checked, setValue } from "@/store/userSlice";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const login = async (values) => {
     try {
       const loginRes = await AuthService.login(values);
       const accessToken = loginRes.accessToken;
       token.token = accessToken;
-      console.log(loginRes)
-      // const authRes = await AuthService.auth();
-      // dispatch(setValue(authRes));
+      const authRes = await AuthService.auth(token.token);
+      dispatch(setValue(authRes), checked());
+      navigate(`/`);
     } catch (error) {
-      // toast.error(error);
+      toast.error(error);
     }
   };
+
   return (
-    <form className="flex flex-col w-[25rem] gap-2 p-3  rounded-[2rem] bg-white max-sm:shadow-none -ml-14 shadow-customeOne max-md:-ml-40 max-sm:m-0 max-sm:top-0 max-sm:rounded-none max-sm:w-full">
+    <div className="flex flex-col w-[25rem] gap-2 p-3  rounded-[2rem] bg-white max-sm:shadow-none -ml-14 shadow-customeOne max-md:-ml-40 max-sm:m-0 max-sm:top-0 max-sm:rounded-none max-sm:w-full">
       <div className="flex text-neutral-800 items-center justify-between p-3 text-lg font-bold bg-gradient-to-tr from-green-500 to-green-300  rounded-t-3xl max-sm:rounded-md">
         <h2 className="">Login</h2>
         <UserCircleIcon className="w-8" />
@@ -36,7 +42,7 @@ export default function Login() {
         })}
         onSubmit={login}>
         {({ values, errors, handleChange, handleSubmit }) => (
-          <form action="">
+          <form onSubmit={handleSubmit}>
             <div className="flex flex-col relative gap-2 my-3">
               <input
                 id="email"
@@ -69,9 +75,9 @@ export default function Login() {
                 Password
               </label>
             </div>
-            <button className="bg-green-500 text-white font-bold p-2 rounded-md mt-2 hover:bg-green-600"
-              type="sumbib"
-            >
+            <button
+              className="bg-green-500 text-white font-bold p-2 rounded-md mt-2 hover:bg-green-600"
+              type="sumbib">
               Submit
             </button>
           </form>
@@ -81,6 +87,6 @@ export default function Login() {
       <NavLink to="/signup" className="px-1 my-2" href="#">
         Dont have an account ?
       </NavLink>
-    </form>
+    </div>
   );
 }
